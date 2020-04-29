@@ -29,6 +29,10 @@ export const Container = styled.div<ContainerProps>`
 
         &:hover {
           opacity: 0.6;
+          text-decoration-line: underline;
+          text-decoration-style: solid;
+          text-decoration-color: #ff872c;
+          text-underline-position: under;
         }
       }
     }

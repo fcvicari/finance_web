@@ -16,26 +16,29 @@ interface Transaction {
   id: string;
   title: string;
   value: number;
-  formattedValue: string;
-  formattedDate: string;
   type: 'income' | 'outcome';
   category: { title: string };
   created_at: Date;
 }
 
 interface Balance {
-  income: string;
-  outcome: string;
-  total: string;
+  income: number;
+  outcome: number;
+  total: number;
 }
 
 const Dashboard: React.FC = () => {
-  // const [transactions, setTransactions] = useState<Transaction[]>([]);
-  // const [balance, setBalance] = useState<Balance>({} as Balance);
+  const [listTransactions, setTransactions] = useState<Transaction[]>([]);
+  const [Listbalance, setBalance] = useState<Balance>({} as Balance);
 
   useEffect(() => {
     async function loadTransactions(): Promise<void> {
-      // TODO
+      const response = await api.get('transactions');
+
+      const { transactions, balance } = response.data;
+
+      setBalance(balance);
+      setTransactions(transactions);
     }
 
     loadTransactions();
@@ -51,21 +54,27 @@ const Dashboard: React.FC = () => {
               <p>Entradas</p>
               <img src={income} alt="Income" />
             </header>
-            <h1 data-testid="balance-income">R$ 5.000,00</h1>
+            <h1 data-testid="balance-income">
+              {formatValue(Listbalance.income)}
+            </h1>
           </Card>
           <Card>
             <header>
               <p>Saídas</p>
               <img src={outcome} alt="Outcome" />
             </header>
-            <h1 data-testid="balance-outcome">R$ 1.000,00</h1>
+            <h1 data-testid="balance-outcome">
+              {formatValue(Listbalance.outcome)}
+            </h1>
           </Card>
           <Card total>
             <header>
               <p>Total</p>
               <img src={total} alt="Total" />
             </header>
-            <h1 data-testid="balance-total">R$ 4000,00</h1>
+            <h1 data-testid="balance-total">
+              {formatValue(Listbalance.total)}
+            </h1>
           </Card>
         </CardContainer>
 
@@ -81,18 +90,17 @@ const Dashboard: React.FC = () => {
             </thead>
 
             <tbody>
-              <tr>
-                <td className="title">Computer</td>
-                <td className="income">R$ 5.000,00</td>
-                <td>Sell</td>
-                <td>20/04/2020</td>
-              </tr>
-              <tr>
-                <td className="title">Website Hosting</td>
-                <td className="outcome">- R$ 1.000,00</td>
-                <td>Hosting</td>
-                <td>19/04/2020</td>
-              </tr>
+              {listTransactions.map(transaction => (
+                <tr>
+                  <td className="title">{transaction.title}</td>
+                  <td className={transaction.type}>
+                    {(transaction.type === 'outcome' ? '- ' : '') +
+                      formatValue(transaction.value)}
+                  </td>
+                  <td>{transaction.category.title}</td>
+                  <td>{transaction.created_at}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </TableContainer>
